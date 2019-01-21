@@ -1,0 +1,41 @@
+sudo: false
+language: python
+cache: pip
+
+python:
+  - 2.7
+  - 3.4
+  - 3.5
+  - 3.6
+  - 3.7
+
+before_install:
+  - pip install -U -r ci/requirements.txt
+
+install:
+  - pip install -U .
+
+script:
+  - green
+
+after_script:
+  - python -m codecov
+  - python -m codacy
+
+before_deploy:
+  - python setup.py sdist bdist_wheel
+  - twine check dist/*
+
+deploy:
+  provider: script
+  on:
+    python: '3.6'
+    tags: true
+    repo: althonos/jinja2-fsloader
+  skip_cleanup: true
+  script: twine upload --skip-existing dist/*
+
+notifications:
+  email:
+  - althonosdev@gmail.com
+
