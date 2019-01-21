@@ -19,7 +19,7 @@ install:
   - pip install -U .
 
 script:
-  - green
+  - python -m coverage run setup.py test
 
 after_script:
   - python -m codecov
