@@ -7,7 +7,6 @@ import fs.path
 import fs.errors
 import jinja2
 import pkg_resources
-import six
 
 
 __author__ = "Martin Larralde <martin.larralde@ens-paris-saclay.fr>"
