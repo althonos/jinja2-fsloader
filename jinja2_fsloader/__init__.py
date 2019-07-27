@@ -33,29 +33,29 @@ class FSLoader(jinja2.BaseLoader):
     """
 
     def __init__(self, template_fs, encoding='utf-8', use_syspath=False):
-        self.fs = fs.open_fs(template_fs)
+        self.filesystem = fs.open_fs(template_fs)
         self.use_syspath = use_syspath
         self.encoding = encoding
 
     def get_source(self, environment, template):
-        if not self.fs.isfile(template):
+        if not self.filesystem.isfile(template):
             raise jinja2.TemplateNotFound(template)
         try:
-            mtime = self.fs.getdetails(template).modified
-            reload = lambda: self.fs.getdetails(template).modified > mtime
+            mtime = self.filesystem.getdetails(template).modified
+            reload = lambda: self.filesystem.getdetails(template).modified > mtime
         except fs.errors.MissingInfoNamespace:
             reload = lambda: True
-        with self.fs.open(template, encoding=self.encoding) as f:
-            source = f.read()
+        with self.filesystem.open(template, encoding=self.encoding) as input_file:
+            source = input_file.read()
         if self.use_syspath:
-            if self.fs.hassyspath(template):
-                return source, self.fs.getsyspath(template), reload
-            elif self.fs.hasurl(template):
-                return source, self.fs.geturl(template), reload
+            if self.filesystem.hassyspath(template):
+                return source, self.filesystem.getsyspath(template), reload
+            elif self.filesystem.hasurl(template):
+                return source, self.filesystem.geturl(template), reload
         return source, template, reload
 
     def list_templates(self):
         found = set()
-        for file in self.fs.walk.files():
+        for file in self.filesystem.walk.files():
             found.add(fs.path.relpath(file))
         return sorted(found)
