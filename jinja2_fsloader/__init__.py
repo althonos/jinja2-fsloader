@@ -35,35 +35,33 @@ class FSLoader(jinja2.BaseLoader):
     def __init__(self, template_fs_list, encoding='utf-8', use_syspath=False):
         if isinstance(template_fs_list, string_types):
             template_fs_list = [template_fs_list]
-        self.template_fs_list = template_fs_list
+        self.fs_list = [fs.open_fs(template_fs) for template_fs in template_fs_list]
         self.use_syspath = use_syspath
         self.encoding = encoding
 
     def get_source(self, environment, template):
-        for template_fs in self.template_fs_list:
-            with fs.open_fs(template_fs) as fs_handle:
-                if not fs.isfile(template):
-                    continue
-                try:
-                    mtime = fs.getdetails(template).modified
-                    reload = lambda: fs_handle.getdetails(template).modified > mtime
-                except fs.errors.MissingInfoNamespace:
-                    reload = lambda: True
-                with fs.open(template, encoding=self.encoding) as f:
-                    source = f.read()
-                if self.use_syspath:
-                    if fs.hassyspath(template):
-                        return source, fs_handle.getsyspath(template), reload
-                    elif fs.hasurl(template):
-                        return source, fs_handle.geturl(template), reload
-                return source, template, reload
+        for fs_handle in self.fs_list:
+            if not fs_handle.isfile(template):
+                continue
+            try:
+                mtime = fs_handle.getdetails(template).modified
+                reload = lambda: fs_handle.getdetails(template).modified > mtime
+            except fs.errors.MissingInfoNamespace:
+                reload = lambda: True
+            with fs_handle.open(template, encoding=self.encoding) as f:
+                source = f.read()
+            if self.use_syspath:
+                if fs.hassyspath(template):
+                    return source, fs_handle.getsyspath(template), reload
+                elif fs.hasurl(template):
+                    return source, fs_handle.geturl(template), reload
+            return source, template, reload
         else:
             raise jinja2.TemplateNotFound(template)
 
     def list_templates(self):
         found = set()
-        for template_fs in self.template_fs_list:
-            with fs.open_fs(template_fs) as fs_handle:
-                for file in fs_handle.walk.files():
-                    found.add(fs.path.relpath(file))
+        for fs_handle in self.fs_list:
+            for file in fs_handle.walk.files():
+                found.add(fs.path.relpath(file))
         return sorted(found)
