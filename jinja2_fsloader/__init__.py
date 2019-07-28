@@ -3,6 +3,7 @@
 """
 
 import fs
+import sys
 import fs.path
 import fs.errors
 import jinja2
@@ -12,6 +13,7 @@ from jinja2._compat import string_types
 __author__ = "Martin Larralde <martin.larralde@ens-paris-saclay.fr>"
 __license__ = "MIT"
 __version__ = pkg_resources.resource_string(__name__, "_version.txt").decode('utf-8').strip()
+PY2 = sys.version_info[0] == 2
 
 
 class FSLoader(jinja2.BaseLoader):
@@ -40,6 +42,7 @@ class FSLoader(jinja2.BaseLoader):
         self.encoding = encoding
 
     def get_source(self, environment, template):
+        template = to_unicode(template)
         for fs_handle in self.fs_list:
             if not fs_handle.isfile(template):
                 continue
@@ -65,3 +68,9 @@ class FSLoader(jinja2.BaseLoader):
             for file in fs_handle.walk.files():
                 found.add(fs.path.relpath(file))
         return sorted(found)
+
+
+def to_unicode(path):
+    if PY2 and path.__class__.__name__ != "unicode":
+        return u"".__class__(path)
+    return path
