@@ -4,6 +4,7 @@
 
 import fs
 import sys
+import uuid
 import fs.path
 import fs.errors
 import jinja2
@@ -36,11 +37,14 @@ class FSLoader(jinja2.BaseLoader):
     """
 
     def __init__(self, template_fs_list, encoding='utf-8', use_syspath=False):
-        if isinstance(template_fs_list, string_types):
+        if isinstance(template_fs_list, string_types) or isinstance(template_fs_list, fs.base.FS):
             template_fs_list = [template_fs_list]
         self.filesystem = MultiFS()
         for template_fs in template_fs_list:
-            self.file_system.add_fs(template_fs, fs.open_fs(template_fs))
+            if isinstance(template_fs, fs.base.FS):
+                self.filesystem.add_fs(uuid.uuid4().hex, fs.open_fs(template_fs))
+            else:
+                self.filesystem.add_fs(template_fs, fs.open_fs(template_fs))
         self.use_syspath = use_syspath
         self.encoding = encoding
 
@@ -57,9 +61,9 @@ class FSLoader(jinja2.BaseLoader):
             with fs_handle.open(template, encoding=self.encoding) as f:
                 source = f.read()
             if self.use_syspath:
-                if fs.hassyspath(template):
+                if fs_handle.hassyspath(template):
                     return source, fs_handle.getsyspath(template), reload
-                elif fs.hasurl(template):
+                elif fs_handle.hasurl(template):
                     return source, fs_handle.geturl(template), reload
             return source, template, reload
         else:
