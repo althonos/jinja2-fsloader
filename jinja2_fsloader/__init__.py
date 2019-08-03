@@ -58,16 +58,16 @@ class FSLoader(jinja2.BaseLoader):
                 reload = lambda: fs_handle.getdetails(template).modified > mtime
             except fs.errors.MissingInfoNamespace:
                 reload = lambda: True
-            with fs_handle.open(template, encoding=self.encoding) as f:
-                source = f.read()
+            with fs_handle.open(template, encoding=self.encoding) as file_handle:
+                source = file_handle.read()
             if self.use_syspath:
                 if fs_handle.hassyspath(template):
                     return source, fs_handle.getsyspath(template), reload
                 elif fs_handle.hasurl(template):
                     return source, fs_handle.geturl(template), reload
             return source, template, reload
-        else:
-            raise jinja2.TemplateNotFound(template)
+
+        raise jinja2.TemplateNotFound(template)
 
     def list_templates(self):
         found = set()
@@ -78,6 +78,7 @@ class FSLoader(jinja2.BaseLoader):
 
 
 def to_unicode(path):
+    """Convert str in python 2 to unitcode"""
     if PY2 and path.__class__.__name__ != "unicode":
         return u"".__class__(path)
     return path
