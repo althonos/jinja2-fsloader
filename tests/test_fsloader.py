@@ -6,8 +6,8 @@ import os
 import fs
 import jinja2
 
-from jinja2_fsloader import FSLoader
-from .utils import in_context, mock
+from jinja2_fsloader import FSLoader, to_unicode
+from .utils import in_context
 
 
 class TestFSLoader(unittest.TestCase):
@@ -21,12 +21,12 @@ class TestFSLoader(unittest.TestCase):
 
     @staticmethod
     def build_fs(filesystem, ctx):
-        filesystem.makedir("dir")
+        filesystem.makedir(to_unicode("dir"))
         with ctx:
-            nested = ctx << filesystem.open("dir/nested.j2", "w")
+            nested = ctx << filesystem.open(to_unicode("dir/nested.j2"), "w")
             nested.write("<html>this is a nested template !</html>")
         with ctx:
-            top = ctx << filesystem.open("top.j2", "w")
+            top = ctx << filesystem.open(to_unicode("top.j2"), "w")
             top.write("<html>this is a top level template !</html>")
 
     @staticmethod
@@ -114,7 +114,7 @@ class TestFSLoader(unittest.TestCase):
     @in_context
     def test_list_templates(self, ctx):
         testfs = ctx << fs.open_fs("temp://")
-        _getinfo = testfs.getinfo
+        testfs.getinfo
         testfs.hassyspath = lambda path: False
         self.build_fs(testfs, ctx)
 
