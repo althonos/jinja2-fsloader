@@ -1,4 +1,5 @@
 # coding: utf-8
+from __future__ import unicode_literals
 
 import unittest
 import os
@@ -6,7 +7,7 @@ import os
 import fs
 import jinja2
 
-from jinja2_fsloader import FSLoader, to_unicode
+from jinja2_fsloader import FSLoader, to_unicode, PY2
 from .utils import in_context
 
 
@@ -21,12 +22,12 @@ class TestFSLoader(unittest.TestCase):
 
     @staticmethod
     def build_fs(filesystem, ctx):
-        filesystem.makedir(to_unicode("dir"))
+        filesystem.makedir("dir")
         with ctx:
-            nested = ctx << filesystem.open(to_unicode("dir/nested.j2"), "w")
+            nested = ctx << filesystem.open("dir/nested.j2", "w")
             nested.write("<html>this is a nested template !</html>")
         with ctx:
-            top = ctx << filesystem.open(to_unicode("top.j2"), "w")
+            top = ctx << filesystem.open("top.j2", "w")
             top.write("<html>this is a top level template !</html>")
 
     @staticmethod
@@ -140,3 +141,8 @@ class TestFSLoader(unittest.TestCase):
         source, path, _ = env.loader.get_source(None, "template_in_zip.j2")
         self.assertEqual(path, "template_in_zip.j2")
         os.unlink("test.zip")
+
+    def test_to_unicode(self):
+        expected = to_unicode(r"abc")
+        if PY2:
+            self.assertTrue(isinstance(expected, unicode))
