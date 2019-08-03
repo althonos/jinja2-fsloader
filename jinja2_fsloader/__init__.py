@@ -9,6 +9,7 @@ import fs.errors
 import jinja2
 import pkg_resources
 from jinja2._compat import string_types
+from fs.multifs import MultiFS
 
 __author__ = "Martin Larralde <martin.larralde@ens-paris-saclay.fr>"
 __license__ = "MIT"
@@ -37,13 +38,15 @@ class FSLoader(jinja2.BaseLoader):
     def __init__(self, template_fs_list, encoding='utf-8', use_syspath=False):
         if isinstance(template_fs_list, string_types):
             template_fs_list = [template_fs_list]
-        self.fs_list = [fs.open_fs(template_fs) for template_fs in template_fs_list]
+        self.file_system = MultiFS()
+        for template_fs in template_fs_list:
+            self.file_system.add_fs(template_fs, fs.open_fs(template_fs))
         self.use_syspath = use_syspath
         self.encoding = encoding
 
     def get_source(self, environment, template):
         template = to_unicode(template)
-        for fs_handle in self.fs_list:
+        for _, fs_handle in self.file_system.iterate_fs():
             if not fs_handle.isfile(template):
                 continue
             try:
@@ -64,7 +67,7 @@ class FSLoader(jinja2.BaseLoader):
 
     def list_templates(self):
         found = set()
-        for fs_handle in self.fs_list:
+        for _, fs_handle in self.file_system.iterate_fs():
             for file in fs_handle.walk.files():
                 found.add(fs.path.relpath(file))
         return sorted(found)
