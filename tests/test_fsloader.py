@@ -141,8 +141,3 @@ class TestFSLoader(unittest.TestCase):
         source, path, _ = env.loader.get_source(None, "template_in_zip.j2")
         self.assertEqual(path, "template_in_zip.j2")
         os.unlink("test.zip")
-
-    def test_to_unicode(self):
-        expected = to_unicode(r"abc")
-        if PY2:
-            self.assertTrue(isinstance(expected, unicode))
