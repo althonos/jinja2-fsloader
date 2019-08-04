@@ -50,29 +50,36 @@ class FSLoader(jinja2.BaseLoader):
 
     def get_source(self, environment, template):
         template = to_unicode(template)
-        for _, fs_handle in self.filesystem.iterate_fs():
-            if not fs_handle.isfile(template):
-                continue
+        for _, a_filesystem in self.filesystem.iterate_fs():
             try:
-                mtime = fs_handle.getdetails(template).modified
-                reload = lambda: fs_handle.getdetails(template).modified > mtime
-            except fs.errors.MissingInfoNamespace:
-                reload = lambda: True
-            with fs_handle.open(template, encoding=self.encoding) as file_handle:
-                source = file_handle.read()
-            if self.use_syspath:
-                if fs_handle.hassyspath(template):
-                    return source, fs_handle.getsyspath(template), reload
-                elif fs_handle.hasurl(template):
-                    return source, fs_handle.geturl(template), reload
-            return source, template, reload
-
+                return self._get_source(a_filesystem, template)
+            except jinja2.TemplateNotFound:
+                # try next file system
+                continue
+        # none of the file system has it
         raise jinja2.TemplateNotFound(template)
+
+    def _get_source(self, filesystem, template):
+        if not filesystem.isfile(template):
+            raise jinja2.TemplateNotFound(template)
+        try:
+            mtime = filesystem.getdetails(template).modified
+            reload = lambda: filesystem.getdetails(template).modified > mtime
+        except fs.errors.MissingInfoNamespace:
+            reload = lambda: True
+        with filesystem.open(template, encoding=self.encoding) as file_handle:
+            source = file_handle.read()
+        if self.use_syspath:
+            if filesystem.hassyspath(template):
+                return source, filesystem.getsyspath(template), reload
+            elif filesystem.hasurl(template):
+                return source, filesystem.geturl(template), reload
+        return source, template, reload
 
     def list_templates(self):
         found = set()
-        for _, fs_handle in self.filesystem.iterate_fs():
-            for file in fs_handle.walk.files():
+        for _, a_filesystem in self.filesystem.iterate_fs():
+            for file in a_filesystem.walk.files():
                 found.add(fs.path.relpath(file))
         return sorted(found)
 
