@@ -67,8 +67,8 @@ class FSLoader(jinja2.BaseLoader):
             reload = lambda: filesystem.getdetails(template).modified > mtime
         except fs.errors.MissingInfoNamespace:
             reload = lambda: True
-        with filesystem.open(template, encoding=self.encoding) as file_handle:
-            source = file_handle.read()
+        with filesystem.open(template, encoding=self.encoding) as input_file:
+            source = input_file.read()
         if self.use_syspath:
             if filesystem.hassyspath(template):
                 return source, filesystem.getsyspath(template), reload
