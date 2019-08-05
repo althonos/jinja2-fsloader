@@ -33,9 +33,8 @@ class TestFSLoader(unittest.TestCase):
 
     @staticmethod
     def build_zipfs():
-        filesystem = fs.open_fs("zip://test.zip", create=True)
-        filesystem.writetext("template_in_zip.j2", "<html>this template is in a zip</html>")
-        filesystem.close()
+        with fs.open_fs("zip://test.zip", create=True) as filesystem:
+            filesystem.writetext("template_in_zip.j2", "<html>this template is in a zip</html>")
 
     @in_context
     def test_get_source_nosyspath_nourl(self, ctx):
@@ -142,7 +141,17 @@ class TestFSLoader(unittest.TestCase):
         source, path, _ = env.loader.get_source(None, "template_in_zip.j2")
         self.assertEqual(path, "template_in_zip.j2")
 
-        env = self.build_env([testfs, "zip://test.zip"], use_syspath=True)
+    @in_context
+    def test_multiple_fs_with_use_syspath(self, ctx):
+        testfs = ctx << fs.open_fs('mem://')
+        self.build_fs(testfs, ctx)
+        self.build_zipfs()
+
+        multi_fs = MultiFS()
+        multi_fs.add_fs('memory', testfs)
+        multi_fs.add_fs('zip', fs.open_fs("zip://test.zip"))
+
+        env = self.build_env(multi_fs, use_syspath=True)
         source, path, _ = env.loader.get_source(None, "template_in_zip.j2")
         self.assertEqual(path, "template_in_zip.j2")
         os.unlink("test.zip")
