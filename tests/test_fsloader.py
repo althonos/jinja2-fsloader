@@ -5,9 +5,10 @@ import unittest
 import os
 
 import fs
+from fs.multifs import MultiFS
 import jinja2
 
-from jinja2_fsloader import FSLoader, to_unicode, PY2
+from jinja2_fsloader import FSLoader
 from .utils import in_context
 
 
@@ -95,7 +96,7 @@ class TestFSLoader(unittest.TestCase):
     @in_context
     def test_get_source_nosyspath_url(self, ctx):
         testfs = ctx << fs.open_fs("temp://")
-        _getinfo = testfs.getinfo
+        testfs.getinfo
         testfs.hassyspath = lambda path: False
         self.build_fs(testfs, ctx)
 
@@ -128,7 +129,11 @@ class TestFSLoader(unittest.TestCase):
         self.build_fs(testfs, ctx)
         self.build_zipfs()
 
-        env = self.build_env([testfs, "zip://test.zip"])
+        multi_fs = MultiFS()
+        multi_fs.add_fs('memory', testfs)
+        multi_fs.add_fs('zip', fs.open_fs("zip://test.zip"))
+
+        env = self.build_env(multi_fs)
         template = env.get_template("dir/nested.j2")
         self.assertEqual(template.render(), "<html>this is a nested template !</html>")
         template = env.get_template("template_in_zip.j2")
