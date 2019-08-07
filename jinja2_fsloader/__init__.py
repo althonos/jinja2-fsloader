@@ -39,7 +39,7 @@ class FSLoader(jinja2.BaseLoader):
         self.encoding = encoding
 
     def get_source(self, environment, template):
-        template = to_unicode(template)
+        template = _to_unicode(template)
         if not self.filesystem.isfile(template):
             raise jinja2.TemplateNotFound(template)
         try:
@@ -63,8 +63,11 @@ class FSLoader(jinja2.BaseLoader):
         return sorted(found)
 
 
-def to_unicode(path):
-    """Convert str in python 2 to unitcode"""
-    if sys.version_info[0] == 2 and path.__class__.__name__ != "unicode":
-        return u"".__class__(path)
-    return path
+if sys.version_info[0] == 2:
+    def _to_unicode(path):
+        """Convert str in Python 2 to unicode.
+        """
+        return path.decode('utf-8') if type(path) is not unicode else path
+else:
+    def _to_unicode(path):
+        return path
