@@ -8,7 +8,12 @@ project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`_.
 
 Unreleased_
 -----------
-.. _Unreleased: https://github.com/althonos/jinja2-fsloader/compare/v0.1.3...HEAD
+.. _Unreleased: https://github.com/althonos/jinja2-fsloader/compare/v0.2.0...HEAD
+
+
+v0.2.0_ - 2019-08-07
+--------------------
+.. _v0.2.0: https://github.com/althonos/jinja2-fsloader/compare/v0.1.3...v0.2.0
 
 Fixed
 '''''
