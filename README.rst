@@ -3,7 +3,7 @@
 
 *A Jinja2 template loader using PyFilesystem2.*
 
-|build| |repo| |versions| |format| |coverage| |grade| |license|
+|build| |repo| |versions| |changelog| |format| |coverage| |grade| |license|
 
 .. |build| image:: https://img.shields.io/travis/althonos/jinja2-fsloader/master.svg?label=travis-ci&style=flat-square
    :target: https://travis-ci.org/althonos/jinja2-fsloader/
@@ -26,6 +26,8 @@
 .. |license| image:: https://img.shields.io/pypi/l/jinja2-fsloader.svg?style=flat-square
    :target: https://choosealicense.com/licenses/mit/
 
+.. |changelog| image:: https://img.shields.io/badge/keep%20a-changelog-8A0707.svg?maxAge=86400&style=flat-square
+   :target: https://github.com/althonos/jinja2-fsloader/blob/master/CHANGELOG.rst
 
 About
 '''''
