@@ -1,6 +1,7 @@
 # coding: utf-8
 """jinja2_fsloader - A Jinja2 template loader using PyFilesystem2.
 """
+import sys
 
 import fs
 import fs.path
@@ -38,6 +39,7 @@ class FSLoader(jinja2.BaseLoader):
         self.encoding = encoding
 
     def get_source(self, environment, template):
+        template = to_unicode(template)
         if not self.filesystem.isfile(template):
             raise jinja2.TemplateNotFound(template)
         try:
@@ -59,3 +61,10 @@ class FSLoader(jinja2.BaseLoader):
         for file in self.filesystem.walk.files():
             found.add(fs.path.relpath(file))
         return sorted(found)
+
+
+def to_unicode(path):
+    """Convert str in python 2 to unitcode"""
+    if sys.version_info[0] == 2 and path.__class__.__name__ != "unicode":
+        return u"".__class__(path)
+    return path
