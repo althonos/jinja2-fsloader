@@ -1,5 +1,8 @@
-``jinja2-fsloader``
-===================
+``jinja2-fsloader`` |star me|
+=============================
+
+.. |star me| image:: https://img.shields.io/github/stars/althonos/jinja2-fsloader.svg?style=social&maxAge=3600&label=Star
+   :target: https://github.com/althonos/jinja2-fsloader/stargazers
 
 *A Jinja2 template loader using PyFilesystem2.*
 
