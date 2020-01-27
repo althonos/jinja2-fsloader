@@ -33,10 +33,11 @@ class FSLoader(jinja2.BaseLoader):
 
     """
 
-    def __init__(self, template_fs, encoding='utf-8', use_syspath=False):
+    def __init__(self, template_fs, encoding='utf-8', use_syspath=False, fs_filter=[]):
         self.filesystem = fs.open_fs(template_fs)
         self.use_syspath = use_syspath
         self.encoding = encoding
+        self.fs_filter = fs_filter
 
     def get_source(self, environment, template):
         template = _to_unicode(template)
@@ -58,7 +59,7 @@ class FSLoader(jinja2.BaseLoader):
 
     def list_templates(self):
         found = set()
-        for file in self.filesystem.walk.files():
+        for file in self.filesystem.walk.files(filter=self.fs_filter):
             found.add(fs.path.relpath(file))
         return sorted(found)
 
