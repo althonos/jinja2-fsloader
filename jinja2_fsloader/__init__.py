@@ -23,17 +23,21 @@ class FSLoader(jinja2.BaseLoader):
 
     >>> zip_loader = FSLoader("zip:///path/to/my/templates.zip")
     >>> ftp_loader = FSLoader(fs.ftpfs.FTPFS("server.net"))
+    >>> dir_loader = FSLoader("./templates/", fs_filter=["*.html"])
 
     Per default the template encoding is ``'utf-8'`` which can be changed
-    by setting the `encoding` parameter to something else. The `syspath`
+    by setting the `encoding` parameter to something else. The `use_syspath`
     parameter can be opted in to provide Jinja2 the system path to the query
     if it exist, otherwise it will only return the internal filesystem path.
+    The optional `fs_filter` parameter is a list of wildcard patterns like
+    ``['*.html', '*.tpl']``. If present, only the matching files in the
+    filesystem will be loaded as templates.
 
     .. seealso:: the `PyFilesystem docs <https://docs.pyfilesystem.org/>`_.
 
     """
 
-    def __init__(self, template_fs, encoding='utf-8', use_syspath=False, fs_filter=[]):
+    def __init__(self, template_fs, encoding='utf-8', use_syspath=False, fs_filter=None):
         self.filesystem = fs.open_fs(template_fs)
         self.use_syspath = use_syspath
         self.encoding = encoding
