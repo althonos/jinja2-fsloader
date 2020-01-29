@@ -8,7 +8,16 @@ project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`_.
 
 Unreleased_
 -----------
-.. _Unreleased: https://github.com/althonos/jinja2-fsloader/compare/v0.2.0...HEAD
+.. _Unreleased: https://github.com/althonos/jinja2-fsloader/compare/v0.3.0...HEAD
+
+
+v0.3.0_ - 2020-01-29
+--------------------
+.. _v0.3.0: https://github.com/althonos/jinja2-fsloader/compare/v0.2.0...v0.3.0
+
+Added
+'''''
+- ``fs_filter`` parameter to filter files being considered as templates (#5)
 
 
 v0.2.0_ - 2019-08-07
